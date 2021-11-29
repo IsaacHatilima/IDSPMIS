@@ -242,7 +242,8 @@ class DocumentsRightsView(View):
     def get(self, request, sub_fold_uid):
         if request.user.is_authenticated:
             sub_folder = SubFolders.objects.get(sub_folder_uid=sub_fold_uid)
-            sub_folder_users = DocumentsRepoSubRights.objects.all()
+            sub_id = sub_folder.id
+            sub_folder_users = DocumentsRepoSubRights.objects.get(document_sub_folder = sub_id)
             context = {'sub_folder' : sub_folder,'sub_folder_users' : sub_folder_users,'sub':True} 
             return render(request, 'system_admin/pages/document_repo/documents_rights.html', context)
         else:
