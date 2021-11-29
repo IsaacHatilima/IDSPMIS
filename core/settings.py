@@ -16,7 +16,7 @@ SECRET_KEY = secret_key_generator.generate()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'authentication.User'
 
 
