@@ -91,37 +91,38 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'idsp_webapp',
-#         'USER' : 'root',
-#         'PASSWORD' : 'Password123$$',
-#         'HOST' : 'localhost',
-#         # 'PORT' : '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'idsprrud_main',
-        'USER' : 'idsprrud_admin',
-        'PASSWORD' : 'loQAqgTVQ=0S',
+        'NAME': 'idsp_webapp',
+        'USER' : 'root',
+        'PASSWORD' : 'Password123$$',
         'HOST' : 'localhost',
         # 'PORT' : '3306',
     }
 }
 
-DEFAULT_FROM_EMAIL = 'IDSP IMS <ims.idspzambia.org>'
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'idsprrud_main',
+#         'USER' : 'idsprrud_admin',
+#         'PASSWORD' : 'loQAqgTVQ=0S',
+#         'HOST' : 'localhost',
+#         # 'PORT' : '3306',
+#     }
+# }
+
+DEFAULT_FROM_EMAIL = 'IDSP IMS <ims@idspzambia.org>'
 EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'server116.web-hosting.com'
+EMAIL_HOST = 'idspzambia.org'
 # EMAIL_HOST = 'smtp.office365.com'
 # EMAIL_HOST = 'business45.web-hosting.com'
-EMAIL_USE_TLS = True
+EMAIL_USE_SSL = True
+# EMAIL_USE_TLS = True
 EMAIL_PORT = 465
 # EMAIL_PORT = 587
-EMAIL_HOST_USER = 'ims.idspzambia.org'
+EMAIL_HOST_USER = 'ims@idspzambia.org'
 # EMAIL_HOST_USER = 'support@techmasters.co.zm'
 EMAIL_HOST_PASSWORD = 'KV4,.nah6=(1'
 # EMAIL_HOST_PASSWORD = 'Password123'
