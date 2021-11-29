@@ -107,7 +107,7 @@
                                     <td>{{ doc.disclosure | safe }}</td>
                                     <td class="center">{{ doc.created_by.get_full_name | safe }} | {{ doc.date_created }}</td>
                                     <td class="center">
-                                        <a class="btn btn-info btn-xs" href="http://127.0.0.1:8000/media/{{ doc.document_path | safe }}" target="_blank" >View</a>
+                                        <a class="btn btn-info btn-xs" href="https://ims.idspzambia.org/media/{{ doc.document_path | safe }}" target="_blank" >View</a>
                                         {% if doc.created_by.get_user_id == user.id %}
                                         <button data-toggle="dropdown" class="btn btn-info btn-xs  dropdown-toggle">Action </button>
                                         <ul class="dropdown-menu">
