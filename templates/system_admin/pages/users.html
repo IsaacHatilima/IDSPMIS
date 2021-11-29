@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox animated bounceInRight" id='ibox2'>
+                <div class="ibox-title" style="padding-bottom: 20px">
+                    <h5>Users</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example" >
+                            <thead>
+                                <tr>
+                                    <th>Names</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for person in user_list %}
+                                    <tr class="gradeA">
+                                        <td>{{ person.get_full_name | safe }}</td>
+                                        <td>{{ person.email | safe }}</td>
+                                        <td>{{ person.user_role | safe }}</td>
+                                        <td>{{ person.date_created }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Names</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+        $(document).ready(function(){
+            $('.dataTables-example').DataTable({
+                pageLength: 25,
+                responsive: true,
+                dom: '<"html5buttons"B>lTfgitp',
+                buttons: [
+                    {extend: 'csv', title: 'IDSP MIS Root Document Repository Folders'},
+                    {extend: 'excel', title: 'IDSP MIS Root Document Repository Folders'},
+                ]
+            });
+
+        });
+
+    </script>
+{% endblock%}

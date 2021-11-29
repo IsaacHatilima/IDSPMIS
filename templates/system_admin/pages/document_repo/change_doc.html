@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox " id='ibox2'>
+                {% for document in doc %}
+                    <div class="ibox-title" style="padding-bottom: 20px">
+                        <h5>Upload New Document | {{ document.doc_sub_folder | safe}}/{{ document.document_name | safe}}
+                    </div>
+                    <div class="ibox-content">
+                        <div class=" animated bounceInRight">
+                            <form role="form" id="file_uploader">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Folder Name:</label> 
+                                                <input readonly type="text" value="{{ document.document_name | safe}}" class="form-control">
+                                                <input readonly hidden type="text" name="document_id" id="document_id" value="{{ document.id | safe}}" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Document Disclosure:</label> 
+                                                <input readonly type="text" value="{{ document.disclosure | safe}}" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Document:</label> 
+                                                <div class="custom-file">
+                                                    <input id="docu" name="docu" type="file" class="custom-file-input">
+                                                    <label for="logo" class="custom-file-label">Choose file...</label>
+                                                </div> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a onclick="goBack()" class="btn btn-white" id="closes" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</a>
+                                    <button type="submit" id="save_doc_dets" name="save_folder"  class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+                                </div>
+                            </form>    
+                        </div>                 
+                    </div>
+                {% endfor %}  
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+        $('.custom-file-input').on('change', function() {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        }); 
+
+        function goBack() {
+            window.history.back();
+        }
+
+        $("#file_uploader").submit(function(e) {
+            $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var formData = new FormData(this)
+            $.ajax({
+                url: "{% url 'update_doc' %}",
+                data: formData,
+                type: "POST",
+                success: function (response) {
+                    $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+                    var returnedData = JSON.parse(response);
+                    var status = returnedData.status
+                    var message = returnedData.msg
+                    if(status === 200){
+                        toastr.success(message,'Success!')
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    }
+                    else{
+                        toastr.warning(message,'Warning!')
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            
+        });
+
+    </script>
+{% endblock%}

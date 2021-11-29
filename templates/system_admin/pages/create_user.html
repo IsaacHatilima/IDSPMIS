@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="ibox " id='ibox2'>                         
+        <div class="ibox-title">
+            <h5>Create User</h5>
+        </div>
+
+        <div class="ibox-content">
+            <div class="sk-spinner sk-spinner-wave">
+                <div class="sk-rect1"></div>
+                <div class="sk-rect2"></div>
+                <div class="sk-rect3"></div>
+                <div class="sk-rect4"></div>
+                <div class="sk-rect5"></div>
+            </div>
+            <form method="POST" id="form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>First Name:</label>
+                        <input type="text" required='required' placeholder="First Name" id="first_name" name="first_name" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label> Last Name:</label>
+                        <input type="text" required='required' placeholder="Last Name" id="last_name" name="last_name" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label> Email:</label>
+                        <input type="email" required='required' placeholder="Email" name="email" id="email" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Role:</label>
+                        <select required='required' class="select2_demo_1 form-control" id="user_role" name="user_role">
+                            <option value="" disabled selected>Select Role</option>
+                            <option value="System Admin">System Admin</option>
+                            <option value="PIU Member">PIU Member</option>
+                            <option value="CLT Member">CLT Member</option>
+                            <option value="MoA">MoA</option>
+                            <option value="World Bank">World Bank</option>
+                        </select>
+                    </div>                               
+                </div><br>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal"><i class="fa fa-times"></i>Close</button>
+                    <button type="button" id="saves" class="btn btn-primary"><i class="fa fa-save"></i> Create</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+        $(".select2_demo_1").select2();
+
+        $("#saves").on('click', function (e){
+            e.preventDefault();
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "preventDuplicates": false,
+                "positionClass": "toast-top-right",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            } 
+            $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+            let first_name = $('#first_name').val();
+            let last_name = $('#last_name').val();
+            let email = $('#email').val();
+            let user_role = $('#user_role').val();  
+            let doc_rights = $('#doc_rights').val();                  
+            var query = { first_name: first_name, last_name:last_name,email:email,user_role:user_role,doc_rights:doc_rights};
+            if (first_name === "" || last_name === "" || email === "" || user_role === "" || doc_rights === "" )
+            {
+                toastr.warning('All fields are required','Warning!')
+                $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+            }
+            else
+            {
+                $.ajax({
+                    url: "{% url 'create_user' %}",
+                    data: query,
+                    type: "POST",
+                    dataType: 'json',
+                    headers: {
+                        content_type: 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+                        if (data) {
+                            var status = data.status
+                            var message = data.msg
+                            if(status === 201){
+                                toastr.success(message,'Success!')
+                                setTimeout(function() {
+                                    window.location.href = "{% url 'create_user' %}";
+                                }, 2500);
+                            }
+                            else if(status === 401){
+                                toastr.warning(message,'Warning!')
+                                setTimeout(function() {
+                                    window.location.href = "{% url 'login' %}";
+                                }, 2500);
+                            }
+                            else{
+                                toastr.warning(message,'Warning!')
+                            }
+                        }
+                    }
+                });
+            }
+        })
+
+    </script>
+{% endblock%}

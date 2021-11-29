@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox " id='ibox2'>
+                {% for folder in sub_folder %}
+                    <div class="ibox-title" style="padding-bottom: 20px">
+                        <h5>Edit Sub Directory Folder | {{ folder.sub_folder_name | safe}}
+                    </div>
+                    <div class="ibox-content">
+                        <div class=" animated bounceInRight">
+                            <form role="form" id="sub_folders">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Root Folder:</label> 
+                                                <select class="form-control m-b" name="root_folder" id="root_folder">
+                                                    <option  disabled>Select Root Folder </option>
+                                                    {% for root_fold in root_folders %}
+                                                        <option value="{{ root_fold.id | safe }}" {% if folder.root_folder.id == root_fold.id  %}selected{% endif %}>{{ root_fold.root_folder_name | safe }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Folder Name:</label> 
+                                                <input required="required" type="text" name="sub_folder_name" id="sub_folder_name" value="{{ folder.sub_folder_name | safe}}" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Folder Status:</label> 
+                                                <select class="form-control m-b" name="sub_folder_status" id="sub_folder_status">
+                                                    <option value="Active" {% if folder.sub_folder_status == "Active" %}selected{% endif %}>Active</option>
+                                                    <option value="Archived" {% if folder.sub_folder_status == "Archived" %}selected{% endif %}>Archived</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="{% url 'documents_sub_folders' %}" class="btn btn-white" id="closes" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</a>
+                                    <button type="button" id="save_folder" name="save_folder"  class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+                                </div>
+                            </form>    
+                        </div>                 
+                    </div>
+                {% endfor %}  
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+        $("#save_folder").on('click', function (e){
+
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var url      = window.location.pathname.split('/');
+            var lastSegment = url.pop() || url.pop();
+            let root_folder = $('#root_folder').val();  
+            let sub_folder_name = $('#sub_folder_name').val();                  
+            let sub_folder_status = $('#sub_folder_status').val();                  
+            let sub_folder_uid = lastSegment;                  
+            var query = { root_folder: root_folder, sub_folder_name:sub_folder_name,sub_folder_status:sub_folder_status,sub_folder_uid:sub_folder_uid};
+            $.ajax({
+                url: "{% url 'documents_sub_folders_mng' %}",
+                data: query,
+                type: "POST",
+                dataType: 'json',
+                headers: {
+                    content_type: 'application/json',
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                success: function (data) {
+                    console.log(data);
+                    $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+                    if (data) {
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 200){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                window.location.href = "{% url 'documents_sub_folders' %}";
+                            }, 1500);
+                        }
+                        else if(status === 401){
+                            toastr.warning(message,'Warning!')
+                            setTimeout(function() {
+                                window.location.href = "{% url 'login' %}";
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                }
+            });
+
+            
+        });
+
+    </script>
+{% endblock%}

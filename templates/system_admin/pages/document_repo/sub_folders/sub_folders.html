@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox animated bounceInRight" id='ibox2'>
+                <div class="ibox-title" style="padding-bottom: 20px">
+                    <h5>Sub Folders</h5>
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#myModal"><i class="fa fa-save"></i> 
+                        Create Folder
+                    </button>
+                    <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content animated bounceInRight">
+                            <form role="form" id="root_folders">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                    <i class="fa fa-folder modal-icon"></i>
+                                    <h4 class="modal-title">Add Repository Root Folder</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label>Folder Status:</label> 
+                                        <select class="form-control m-b" name="root_folder" id="root_folder">
+                                            <option selected disabled>Select Root Folder</option>
+                                            {% for root_folder in root_folders_list %}
+                                                <option value="{{ root_folder.id | safe }}" >{{ root_folder.root_folder_name | safe }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Folder Name:</label> 
+                                        <input required="required" type="text" name="sub_folder_name" id="sub_folder_name" placeholder="Sub Folder Name" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-white" id="closes" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                                    <button type="submit" id="save_folder" name="save_folder"  class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+                                </div>
+                            </form>    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example" >
+                            <thead>
+                                <tr>
+                                    <th>Root Folder Name</th>
+                                    <th>Sub Folder Name</th>
+                                    <th>Created</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for folder in folders %}
+                                    <tr class="gradeA">
+                                        <td>{{ folder.root_folder.root_folder_name | safe }}</td>
+                                        <td>{{ folder.sub_folder_name | safe }}</td>
+                                        <td style="width: fit-content;">{{ folder.created_by.get_full_name | safe }} | {{ folder.date_created }} </td>
+                                        <td>{{ folder.sub_folder_status | safe }}</td>
+                                        <td>
+                                            <button data-toggle="dropdown" class="btn btn-info btn-xs  dropdown-toggle">Action </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="{{ folder.get_absolute_url | safe}}">Edit Folder</a></li>
+                                                <li class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="{% url 'documents_sub_folders_rights' sub_fold_uid=folder.sub_folder_uid %}">Manage Access</a></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Root Folder Name</th>
+                                    <th>Sub Folder Name</th>
+                                    <th>Created</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+        $("#root_folders").submit(function(e) {
+
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var forms = $('#root_folders');
+            let form_data = forms.serialize();
+            $.ajax({
+                url: "{% url 'documents_sub_folders' %}",
+                data: form_data,
+                type: "POST",
+                dataType: 'json',
+                headers: {
+                    content_type: 'application/json',
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                success: function (data) {
+                    console.log(data);
+                    $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+                    if (data) {
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 201){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                window.location.href = "{% url 'documents_sub_folders' %}";
+                            }, 1500);
+                        }
+                        else if(status === 401){
+                            toastr.warning(message,'Warning!')
+                            setTimeout(function() {
+                                window.location.href = "{% url 'login' %}";
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                }
+            });
+            
+        });
+
+        $(document).ready(function(){
+            $('.dataTables-example').DataTable({
+                pageLength: 10,
+                responsive: true,
+                dom: '<"html5buttons"B>lTfgitp',
+                buttons: [
+                    {extend: 'csv', title: 'IDSP MIS Sub Document Repository Folders'},
+                    {extend: 'excel', title: 'IDSP MIS Sub Document Repository Folders'},
+                ]
+            });
+
+        });
+
+    </script>
+{% endblock%}

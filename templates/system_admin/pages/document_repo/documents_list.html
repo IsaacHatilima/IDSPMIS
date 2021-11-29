@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+
+{% if access %}
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox animated bounceInRight" id='ibox2'>
+                    <div class="ibox-title" style="padding-bottom: 20px">
+                        <h5>{% for folder in sub_folder %}{{ folder.root_folder | safe }} | {{ folder.sub_folder_name | safe }}{% endfor %} </h5>
+                        {% if access.document_right == "Read and Write"  %}
+                            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#myModal"><i class="fa fa-arrow-up"></i> 
+                                Upload File
+                            </button>
+                        {% endif %}
+
+                        <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content animated bounceInRight">
+                                    {% for folder in sub_folder %}
+                                        <form role="form" id="file_uploader">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                                <i class="fa fa-folder modal-icon"></i>
+                                                <h4 class="modal-title">Upload Document  in {{ folder.sub_folder_name | safe }}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>Root Folder:</label> 
+                                                            <input readonly type="text" value="{{ folder.root_folder | safe }}" class="form-control">
+                                                            <input readonly type="text" name="doc_root_folder" id="doc_root_folder" hidden value="{{ folder.root_folder.id | safe }}" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>Sub Folder:</label> 
+                                                            <input readonly type="text" value="{{ folder.sub_folder_name | safe }}" class="form-control">
+                                                            <input readonly type="text" name="doc_sub_folder" id="doc_sub_folder" hidden value="{{ folder.id | safe }}" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>Document Name:</label> 
+                                                            <input required="required" type="text" name="document_name" id="document_name" placeholder="Sub Folder Name" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>Disclosure:</label> 
+                                                            <select class="form-control m-b" name="disclosure" id="disclosure">
+                                                                <option selected disabled>Select Disclosure Leve</option>
+                                                                <option value="MIS" >MIS</option>
+                                                                <option value="MIS & Website" >MIS & Website</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group">
+                                                            <label>Document:</label> 
+                                                            <div class="custom-file">
+                                                                <input id="docu" name="docu" type="file" class="custom-file-input">
+                                                                <label for="logo" class="custom-file-label">Choose file...</label>
+                                                            </div> 
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6"></div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-white" id="closes" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                                                <button type="submit" id="save_folder" name="save_folder"  class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+                                            </div>
+                                        </form>
+                                    {% endfor %}    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <input type="text" class="form-control form-control-sm m-b-xs" id="filter" placeholder="Search table">
+
+                        <table class="footable table table-stripped" data-page-size="8" data-filter=#filter>
+                            <thead>
+                                <tr>
+                                    <th>Root Folder</th>
+                                    <th>Sub Folder</th>
+                                    <th data-hide="phone,tablet">Document Name</th>
+                                    <th data-hide="phone,tablet">Disclosure</th>
+                                    <th data-hide="phone,tablet">Uploaded By</th>
+                                    <th data-hide="phone,tablet">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in doc_file %}
+                                <tr class="gradeX">
+                                    <td>{{ doc.doc_root_folder | safe }}</td>
+                                    <td>{{ doc.doc_sub_folder | safe }}</td>
+                                    <td>{{ doc.document_name | safe }}</td>
+                                    <td>{{ doc.disclosure | safe }}</td>
+                                    <td class="center">{{ doc.created_by.get_full_name | safe }} | {{ doc.date_created }}</td>
+                                    <td class="center">
+                                        <a class="btn btn-info btn-xs" href="http://127.0.0.1:8000/media/{{ doc.document_path | safe }}" target="_blank" >View</a>
+                                        {% if doc.created_by.get_user_id == user.id %}
+                                        <button data-toggle="dropdown" class="btn btn-info btn-xs  dropdown-toggle">Action </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="{{ doc.get_doc_absolute_url }}">Upload New Doc</a></li>
+                                            <li class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="{{ doc.get_absolute_url }}">Update Doc Details</a></li>
+                                        </ul>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <ul class="pagination float-right"></ul>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="middle-box text-center animated fadeInDown" style="margin-top: -50px;">
+            <h1>401</h1>
+            <h3 class="font-bold">Unauthorised!</h3>
+
+            <div class="error-desc">
+                You are not authorised to view content of this directory. If you think this is an error, contact your system admin               
+            </div>
+            <a href="{% url 'documents_repo' %}" class="btn btn-primary" style="margin-top: 10px;">Back</a>
+        </div>
+    </div>
+{% endif %}
+
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+
+        $('.custom-file-input').on('change', function() {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass("selected").html(fileName);
+        }); 
+
+        $("#file_uploader").submit(function(e) {
+            $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var formData = new FormData(this)
+            $.ajax({
+                url: "{% url 'documents_repo' %}",
+                data: formData,
+                type: "POST",
+                success: function (response) {
+                    $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+                    var returnedData = JSON.parse(response);
+                    var status = returnedData.status
+                    var message = returnedData.msg
+                    if(status === 201){
+                        toastr.success(message,'Success!')
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    }
+                    else if(status === 401){
+                        toastr.warning(message,'Warning!')
+                        setTimeout(function() {
+                            window.location.href = "{% url 'login' %}";
+                        }, 1500);
+                    }
+                    else{
+                        toastr.warning(message,'Warning!')
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            
+        });
+
+        $(document).ready(function(){
+            $('.dataTables-example').DataTable({
+                pageLength: 10,
+                responsive: true,
+                dom: '<"html5buttons"B>lTfgitp',
+                buttons: [
+                    {extend: 'csv', title: 'IDSP MIS Sub Document Repository Folders'},
+                    {extend: 'excel', title: 'IDSP MIS Sub Document Repository Folders'},
+                ]
+            });
+
+        });
+
+    </script>
+{% endblock%}

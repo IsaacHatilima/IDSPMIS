@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'img/Logo.jpg' %}">
+    <title>IDSP | Login</title>
+
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'font-awesome/css/font-awesome.css' %}" rel="stylesheet">
+
+    <link href="{% static 'css/animate.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+
+    <div class="loginColumns animated fadeInDown">
+        <div class="alert alert-info" id="notify" style="display: none;">
+            <b id="heading"></b> <span id="msg"></span>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h2 class="font-bold">Welcome to IDSP MIS</h2>
+
+                <img src="{% static 'img/Logo.jpg' %}">
+
+            </div>
+            <div class="col-md-6" style="margin-top: 58px;">
+
+                <div class="ibox-content">
+                    <form class="m-t" role="form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="email" class="form-control" placeholder="Email" id="email" required="">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control" placeholder="Password" id="password" required="">
+                        </div>
+                        <button type="submit" id="login" class="btn btn-primary block full-width m-b">Login</button>
+
+                        <a href="{% url 'forgot_password' %}">
+                            <small>Forgot password?</small>
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-md-6">
+                Irrigation Development Scheme Project
+            </div>
+            <div class="col-md-6 text-right">
+               <small>© 2021-<script>
+                var CurrentYear = new Date().getFullYear()
+                document.write(CurrentYear)
+            </script></small>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
+    <!-- <script src="{% static 'custom/auth/login.js' %}"></script> -->
+    <script>
+        $("#login").on('click', function (e){
+            e.preventDefault();
+            document.getElementById("notify").style.display = "block";
+            $("#heading").html('Authenticating!');
+            $("#msg").html('Please Wait...');
+            $("#notify").removeClass("alert-warning").addClass("alert-info");
+            let email = $('#email').val();
+            let password = $('#password').val();                       
+            var payload = { email : email, password : password};
+            //console.log(payload);
+            $.ajax({
+                url: "{% url 'login' %}",
+                data: payload,
+                type: "POST",
+                dataType : "json",
+                headers: {
+                    content_type: 'application/json',
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                success: function (data) {
+                    if (data) {
+                        var status = data.status
+                        var message = data.msg
+                        var role = data.role
+                        if(status === 200)
+                        {
+                            if(role === "System Admin")
+                            {
+                                $("#heading").html('Authenticated!');
+                                $("#msg").html('Redirecting, Please Wait...');
+                                $("#notify").removeClass("alert-info alert-warning").addClass("alert-success");
+                                setTimeout(function() {
+                                    window.location.href = "{% url 'dashboard' %}";
+                                }, 2500);
+                            }                    
+                        }
+                        else if(status === 401)
+                        {
+                            $("#heading").html('Warning!');
+                            $("#msg").html(message);
+                            $("#notify").removeClass("alert-info alert-success").addClass("alert-warning");
+                        }
+                    }
+                },
+                error: function (data) {
+                    // console.log(data.status);
+                    var message = data.msg
+                    $("#heading").html('Warning!');
+                    $("#msg").html(message);
+                    $("#notify").removeClass("alert-info alert-success").addClass("alert-warning");
+                }
+            });
+        }) 
+    </script>
+</body>
+
+</html>

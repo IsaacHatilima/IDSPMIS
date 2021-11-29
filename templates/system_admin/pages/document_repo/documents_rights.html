@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox animated bounceInRight" id='ibox2'>
+                <div class="ibox-title" style="padding-bottom: 20px">
+                    {% if sub_folder %}
+                    <h5>Sub Folders Right Management ({{ sub_folder.root_folder | safe }} | {{ sub_folder.sub_folder_name | safe }})</h5>
+                    {% endif %}
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#myModal"><i class="fa fa-save"></i> 
+                        Add User
+                    </button>
+                    <div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content animated bounceInRight">
+                            <form role="form" id="folder_users">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                    <i class="fa fa-user modal-icon"></i>
+                                    <h4 class="modal-title">Add Repository Root Folder</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label>User Email:</label> 
+                                        <input required="required" type="email" name="email" id="email" placeholder="User Email" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Folder Rights:</label> 
+                                        <select class="form-control m-b" name="document_right" id="document_right">
+                                            <option selected disabled>Select Folder Rights</option>
+                                            <option value="Read Only" >Read Only</option>
+                                            <option value="Read and Write" >Read and Write</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-white" id="closes" data-dismiss="modal"><i class="fa fa-times"></i> Close</button>
+                                    <button type="button" id="save_right" name="save_right"  class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+                                </div>
+                            </form>    
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example" >
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Rights</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for users in sub_folder_users %}
+                                    <tr class="gradeA">
+                                        <td>{{ users.rights_to| safe }}</td>
+                                        <td>{{ users.document_right | safe }}</td>
+                                        <td>{{ users.document_sub_folder.sub_folder_status | safe }}</td>
+                                        <td style="text-align: center;">
+                                            <button data-toggle="dropdown" class="btn btn-info btn-xs  dropdown-toggle">Action </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" type="button" id="{{ users.id | safe }}" onClick="update_r_click(this.id)">Set Read Only</a></li>
+                                                <li class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" type="button" id="{{ users.id | safe }}" onClick="update_rw_click(this.id)">Set Readn & Write</a></li>
+                                            </ul>
+                                            <button type="button" class="btn btn-xs btn-danger" id="{{ users.id | safe }}" onClick="delete_click(this.id)">Remove</button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Rights</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+        $("#save_right").on('click', function (e){
+
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var url      = window.location.pathname.split('/');
+            var lastSegment = url.pop() || url.pop();
+            let email = $('#email').val();  
+            let document_right = $('#document_right').val();                       
+            let document_sub_folder = lastSegment;                  
+            var query = { email: email, document_right:document_right,document_sub_folder:document_sub_folder};
+            $.ajax({
+                url: "{% url 'documents_sub_folders_rights_maker' %}",
+                data: query,
+                type: "POST",
+                dataType: 'json',
+                headers: {
+                    content_type: 'application/json',
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                success: function (data) {
+                    $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+                    if (data) {
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 201){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                }
+            });
+
+            
+        });
+
+        function delete_click(clicked_id)
+        { 
+            document.getElementById(clicked_id).disabled = true;
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to undo this action!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                closeOnConfirm: false
+            }, function () {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "progressBar": true,
+                    "preventDuplicates": false,
+                    "positionClass": "toast-top-right",
+                    "onclick": null,
+                    "showDuration": "400",
+                    "hideDuration": "1000",
+                    "timeOut": "7000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }     
+                $('#ibox2').children('.ibox-content').toggleClass('sk-loading');    
+                let record_id = clicked_id;
+                var payload = {record_id : record_id};
+                $.ajax({
+                    url: "{% url 'delete_folder_user' %}",
+                    data: payload,
+                    method: "POST",
+                    dataType: 'json',
+                    headers: {
+                        content_type: 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    success: function (data) {
+                    if (data) {
+                        console.log(data)
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 200){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                    }
+                });
+            });
+        }
+
+        function update_r_click(clicked_id)
+        { 
+            document.getElementById(clicked_id).disabled = true;
+            swal({
+                title: "Are you sure?",
+                text: "You are about to set rights to Read Only",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#25C6C8",
+                confirmButtonText: "Yes, go ahead!",
+                closeOnConfirm: false
+            }, function () {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "progressBar": true,
+                    "preventDuplicates": false,
+                    "positionClass": "toast-top-right",
+                    "onclick": null,
+                    "showDuration": "400",
+                    "hideDuration": "1000",
+                    "timeOut": "7000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }     
+                $('#ibox2').children('.ibox-content').toggleClass('sk-loading');    
+                let record_id = clicked_id;
+                let right = "Read Only"
+                var payload = {record_id : record_id, right : right};
+                $.ajax({
+                    url: "{% url 'update_folder_user' %}",
+                    data: payload,
+                    method: "POST",
+                    dataType: 'json',
+                    headers: {
+                        content_type: 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    success: function (data) {
+                    if (data) {
+                        console.log(data)
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 200){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                    }
+                });
+            });
+        }
+
+        function update_rw_click(clicked_id)
+        { 
+            document.getElementById(clicked_id).disabled = true;
+            swal({
+                title: "Are you sure?",
+                text: "You are about to set rights to Read and Write",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#25C6C8",
+                confirmButtonText: "Yes, go ahead!",
+                closeOnConfirm: false
+            }, function () {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "progressBar": true,
+                    "preventDuplicates": false,
+                    "positionClass": "toast-top-right",
+                    "onclick": null,
+                    "showDuration": "400",
+                    "hideDuration": "1000",
+                    "timeOut": "7000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }     
+                $('#ibox2').children('.ibox-content').toggleClass('sk-loading');    
+                let record_id = clicked_id;
+                let right = "Read and Write"
+                var payload = {record_id : record_id, right : right};
+                $.ajax({
+                    url: "{% url 'update_folder_user' %}",
+                    data: payload,
+                    method: "POST",
+                    dataType: 'json',
+                    headers: {
+                        content_type: 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    success: function (data) {
+                    if (data) {
+                        console.log(data)
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 200){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                    }
+                });
+            });
+        }
+
+
+
+        $(document).ready(function(){
+            $('.dataTables-example').DataTable({
+                pageLength: 10,
+                responsive: true,
+                dom: '<"html5buttons"B>lTfgitp',
+                buttons: [
+                    {extend: 'csv', title: 'IDSP MIS Sub Document Repository Folders'},
+                    {extend: 'excel', title: 'IDSP MIS Sub Document Repository Folders'},
+                ]
+            });
+
+        });
+
+    </script>
+{% endblock%}

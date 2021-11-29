@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox " id='ibox2'>
+                {% for document in doc %}
+                    <div class="ibox-title" style="padding-bottom: 20px">
+                        <h5>Edit Document Details | {{ document.doc_sub_folder | safe}}/{{ document.document_name | safe}}
+                    </div>
+                    <div class="ibox-content">
+                        <div class=" animated bounceInRight">
+                            <form role="form" id="doc_dets">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Folder Name:</label> 
+                                                <input required="required" type="text" name="document_name" id="document_name" value="{{ document.document_name | safe}}" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label>Document Disclosure:</label> 
+                                                <select class="form-control m-b" name="disclosure" id="disclosure">
+                                                    <option value="MIS" {% if document.disclosure == "MIS" %}selected{% endif %}>MIS</option>
+                                                    <option value="MIS & Website" {% if document.disclosure == "MIS & Website" %}selected{% endif %}>MIS & Website</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a onclick="goBack()" class="btn btn-white" id="closes" data-dismiss="modal"><i class="fa fa-times"></i> Cancel</a>
+                                    <button type="button" id="save_doc_dets" name="save_folder"  class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+                                </div>
+                            </form>    
+                        </div>                 
+                    </div>
+                {% endfor %}  
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+        function goBack() {
+            window.history.back();
+          }
+
+
+        $("#save_doc_dets").on('click', function (e){
+
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var url      = window.location.pathname.split('/');
+            var lastSegment = url.pop() || url.pop();
+            let document_name = $('#document_name').val();  
+            let disclosure = $('#disclosure').val();                 
+            let document_uid = lastSegment;                  
+            var query = { document_name: document_name, disclosure:disclosure,document_uid:document_uid};
+            $.ajax({
+                url: "{% url 'update_doc_details' %}",
+                data: query,
+                type: "POST",
+                dataType: 'json',
+                headers: {
+                    content_type: 'application/json',
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                success: function (data) {
+                    console.log(data);
+                    $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+                    if (data) {
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 200){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                goBack();
+                            }, 1500);
+                        }
+                        else if(status === 401){
+                            toastr.warning(message,'Warning!')
+                            setTimeout(function() {
+                                window.location.href = "{% url 'login' %}";
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                }
+            });
+
+            
+        });
+
+    </script>
+{% endblock%}
