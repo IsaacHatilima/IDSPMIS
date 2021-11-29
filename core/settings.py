@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = secret_key_generator.generate()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'authentication.User'
@@ -91,27 +91,27 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'idsp_webapp',
-#         'USER' : 'root',
-#         'PASSWORD' : 'Password123$$',
-#         'HOST' : 'localhost',
-#         # 'PORT' : '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'idsprrud_main',
-        'USER' : 'idsprrud_admin',
-        'PASSWORD' : 'loQAqgTVQ=0S',
+        'NAME': 'idsp_webapp',
+        'USER' : 'root',
+        'PASSWORD' : 'Password123$$',
         'HOST' : 'localhost',
         # 'PORT' : '3306',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'idsprrud_main',
+#         'USER' : 'idsprrud_admin',
+#         'PASSWORD' : 'loQAqgTVQ=0S',
+#         'HOST' : 'localhost',
+#         # 'PORT' : '3306',
+#     }
+# }
 
 DEFAULT_FROM_EMAIL = 'IDSP IMS <ims@idspzambia.org>'
 EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'
