@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/idsprrud/ims
+    - /bin/cp -R * $DEPLOYPATH
