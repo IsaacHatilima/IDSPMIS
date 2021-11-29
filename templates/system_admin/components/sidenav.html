@@ -6,13 +6,13 @@
                 <div class="dropdown profile-element">
                     <!-- <img alt="image" class="rounded-circle" src="{% static 'img/profile_small.jpg' %}"/> -->
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                        <span class="block m-t-xs font-bold">David Williams</span>
-                        <span class="text-muted text-xs block">Art Director <b class="caret"></b></span>
+                        <span class="block m-t-xs font-bold">{{ user.first_name }} {{ user.last_name }}</span>
+                        <span class="text-muted text-xs block">{{ user.user_role }} <b class="caret"></b></span>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        <li><a class="dropdown-item" href="profile.html">Profile</a></li>
+                        <!-- <li><a class="dropdown-item" href="profile.html">Profile</a></li>
                         <li><a class="dropdown-item" href="contacts.html">Contacts</a></li>
-                        <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li>
+                        <li><a class="dropdown-item" href="mailbox.html">Mailbox</a></li> -->
                         <li class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                     </ul>
@@ -21,13 +21,15 @@
                     IN+
                 </div>
             </li>
-            <li class="{% if user_list or create_user %}active{% endif %}">
-                <a href="#"><i class="fa fa-users"></i> <span class="nav-label">User Management </span><span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level collapse">
-                    <li class="{% if create_user %}active{% endif %}"><a href="{% url 'create_user' %}">Create User</a></li>
-                    <li class="{% if users %}active{% endif %}"><a href="{% url 'users' %}">User List</a></li>
-                </ul>
-            </li>
+            {% if user.user_role == "System Admin"  %}
+                <li class="{% if user_list or create_user %}active{% endif %}">
+                    <a href="#"><i class="fa fa-users"></i> <span class="nav-label">User Management </span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li class="{% if create_user %}active{% endif %}"><a href="{% url 'create_user' %}">Create User</a></li>
+                        <li class="{% if users %}active{% endif %}"><a href="{% url 'users' %}">User List</a></li>
+                    </ul>
+                </li>
+            {% endif %}
             <li class="document_repo">
                 <a href="#"><i class="fa fa-file"></i> <span class="nav-label">Documets</span></a>
             </li>
