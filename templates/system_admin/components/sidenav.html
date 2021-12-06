@@ -21,7 +21,7 @@
                     IN+
                 </div>
             </li>
-            {% if user.user_role == "System Admin"  %}
+            {% if user.email == "edward.chibwe@idspzambia.org"  %}
                 <li class="{% if user_list or create_user %}active{% endif %}">
                     <a href="#"><i class="fa fa-users"></i> <span class="nav-label">User Management </span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
@@ -41,14 +41,31 @@
             <li class="landing_link">
                 <a href="#"><i class="fa fa-star"></i> <span class="nav-label">Website Setup</span></a>
             </li>
-            <li class="{% if web_about or project_description %}active{% endif %}">
+            <li class="{% if web_ab or web_pro_desc %}active{% endif %}">
                 <a href="#">About Us <span class="fa arrow"></span></a>
                 <ul class="nav nav-third-level">
-                    <li class="{% if web_about %}active{% endif %}">
-                        <a href="#">About</a>
+                    <li class="{% if web_ab %}active{% endif %}">
+                        <a href="{% url 'web_about' %}">About</a>
                     </li>
-                    <li class="{% if project_description %}active{% endif %}">
-                        <a href="#">Project Description</a>
+                    <li class="{% if web_pro_desc %}active{% endif %}">
+                        <a href="{% url 'project_desc' %}">Project Description</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="{% if www or coreSite or isfSite or remSite %}active{% endif %}">
+                <a href="#">Sites<span class="fa arrow"></span></a>
+                <ul class="nav nav-third-level">
+                    <li class="{% if www %}active{% endif %}">
+                        <a href="{% url 'where_works' %}">Where We Work</a>
+                    </li>
+                    <li class="{% if coreSite %}active{% endif %}">
+                        <a href="{% url 'core_sites' %}">Core Sites</a>
+                    </li>
+                    <li class="{% if isfSite %}active{% endif %}">
+                        <a href="{% url 'isf_sites' %}">ISF Sites</a>
+                    </li>
+                    <li class="{% if remSite %}active{% endif %}">
+                        <a href="{% url 'remedial_sites' %}">Remedial Works Sites</a>
                     </li>
                 </ul>
             </li>

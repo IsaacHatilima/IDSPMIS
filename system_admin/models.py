@@ -3,7 +3,7 @@ import uuid
 from django.urls import reverse
 from authentication.models import User
 
-
+##########################Document Repository
 class RootFolders(models.Model):
     root_folder_uid         = models.UUIDField(verbose_name='Root Folder UID', null=False, default=uuid.uuid4, editable=False, unique=True, db_index=True)
     root_folder_name        = models.CharField(max_length=255, verbose_name='Root Folder Name', unique=True, blank=False, null=False)
@@ -96,6 +96,72 @@ class DocumentsRepoSubRights(models.Model):
         db_table = "document_repo_rights"
         verbose_name = "Document Repository Rights"
         verbose_name_plural = "Document Repositorys Rights"
+ 
         
+##########################Website COntent       
+class About(models.Model):
+    
+    author = models.ForeignKey(User, verbose_name = "Author", on_delete=models.CASCADE)
+    about_us = models.TextField(verbose_name = "About Us", null=True)
+    date_created = models.DateField(verbose_name= "date_created", auto_now=True)
+    date_modified = models.DateField(verbose_name= "date_modified", auto_now=True)
+
+    def __str__(self):
+        return self.about_us
+
+    class Meta:
+        db_table = "about_us"
+        verbose_name = "About Us"
+        verbose_name_plural = "About Us"
         
-#From the other app
+class ProjectDescription(models.Model):
+    
+    author = models.ForeignKey(User, verbose_name = "Author", on_delete=models.CASCADE)
+    project_description = models.TextField(verbose_name = "Project Description", null=True)
+    date_created = models.DateField(verbose_name= "date_created", auto_now=True)
+    date_modified = models.DateField(verbose_name= "date_modified", auto_now=True)
+
+    
+    def __str__(self):
+        return self.project_description
+
+    class Meta:
+        db_table = "project_description"
+        verbose_name = "Project Description"
+        verbose_name_plural = "Project Description"
+
+class CoreSites(models.Model):
+    
+    author = models.ForeignKey(User, verbose_name = "Author", on_delete=models.CASCADE)
+    where_we_work = models.TextField(verbose_name = "Where We Work", null=True)
+    core_sites = models.TextField(verbose_name = "Core Sites", null=True)
+    isf_sites = models.TextField(verbose_name = "ISF Sites", null=True)
+    remidial_work_sites = models.TextField(verbose_name = "Remidial Works Sites", null=True)
+    date_created = models.DateField(verbose_name= "date_created", auto_now=True)
+
+    def __str__(self):
+        return self.where_we_work
+    
+    class Meta:
+        db_table = "where_we_work"
+        verbose_name = "Core Site"
+        verbose_name_plural = "Core Sites"
+
+            
+class CoreSiteList(models.Model):
+    
+    author = models.ForeignKey(User, verbose_name = "Author", on_delete=models.CASCADE)
+    lusitu = models.TextField(verbose_name = "Lusitu", null=True)
+    mwomboshi = models.TextField(verbose_name = "Mwomboshi", null=True)
+    musakashi = models.TextField(verbose_name = "Musakashi", null=True)
+    date_created = models.DateField(verbose_name= "date_created", auto_now=True)
+    date_modified = models.DateField(verbose_name= "date_modified", auto_now=True)
+
+    
+    def __str__(self):
+        return self.lusitu
+
+    class Meta:
+        db_table = "safeguard_sites"
+        verbose_name = "Safe Guard"
+        verbose_name_plural = "Safe Guards"

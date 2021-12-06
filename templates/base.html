@@ -80,9 +80,8 @@
         <script src="{% static 'js/plugins/toastr/toastr.min.js' %}"></script>
         <script src="{% static 'js/plugins/jsTree/jstree.min.js' %}"></script>
         <script src="{% static 'js/plugins/sweetalert/sweetalert.min.js' %}"></script>
-        {% block pageinclude %}
-        
-        {% endblock%}
+    
+
         <script>
             $(document).ready(function(){
     
@@ -92,6 +91,10 @@
     
            });
         </script>
+        {% block pageinclude %}
+        
+        {% endblock%}
+
 
     </body>
 </html>

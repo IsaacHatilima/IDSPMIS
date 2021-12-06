@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.models import User
 from .utils import Util
 from .models import *
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Dashboard(View):
@@ -248,8 +249,7 @@ class DocumentsRightsView(View):
             return render(request, 'system_admin/pages/document_repo/documents_rights.html', context)
         else:
             return HttpResponseRedirect(reverse('login'))
-
-        
+       
 class AddFolderUser(View):
     def post(self, request):
         if request.user.is_authenticated:
@@ -298,8 +298,7 @@ class UpdateFolderUser(View):
             return HttpResponse(json.dumps(response_data)) 
         else:
             return HttpResponseRedirect(reverse('login'))
-        
-        
+                
 class UpdateDocView(View):
     def get(self, request, document_uid):
         if request.user.is_authenticated:
@@ -345,9 +344,226 @@ class UploadDocumentView(View):
             return HttpResponse(json.dumps(response_data)) 
         else:
             return HttpResponseRedirect(reverse('login'))        
+  
+#Website Config  
+class WebAboutView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                abt = About.objects.get(id=1)
+                if abt:
+                    context = {'abt' : abt,'web_ab':True} 
+            except About.DoesNotExist:
+                context = {'abt' : '','web_ab':True}  
+            return render(request, 'system_admin/pages/web_about.html', context)
+        else:
+            return HttpResponseRedirect(reverse('login'))   
         
+    def post(self, request):
+        if request.user.is_authenticated: 
+            try:
+                abt = About.objects.get(id=1)
+                if abt:
+                    abt.about_us = request.POST.get('about_us')
+                    abt.save()
+                    msg = 'About Us updated successfully.'
+                    error_code = status.HTTP_200_OK  
+            except About.DoesNotExist:
+                About.objects.create(
+                about_us = request.POST.get('about_us'),
+                author = self.request.user,
+                )
+                msg = 'About Us created successfully.'
+                error_code = status.HTTP_201_CREATED 
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data))
+        else:
+            return HttpResponseRedirect(reverse('login'))      
         
+class ProjectDescriptionView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                pro_desc = ProjectDescription.objects.get(id=1)
+                if pro_desc:
+                    context = {'pro_desc' : pro_desc,'web_pro_desc':True} 
+            except ProjectDescription.DoesNotExist:
+                context = {'pro_desc' : '','web_pro_desc':True}  
+            return render(request, 'system_admin/pages/project_description.html', context)
+        else:
+            return HttpResponseRedirect(reverse('login'))   
         
+    def post(self, request):
+        if request.user.is_authenticated: 
+            try:
+                pro_desc = ProjectDescription.objects.get(id=1)
+                if pro_desc:
+                    pro_desc.project_description = request.POST.get('projectDescription')
+                    pro_desc.save()
+                    msg = 'Project Description updated successfully.'
+                    error_code = status.HTTP_200_OK  
+            except ProjectDescription.DoesNotExist:
+                ProjectDescription.objects.create(
+                project_description = request.POST.get('projectDescription'),
+                author = self.request.user,
+                )
+                msg = 'Project Description created successfully.'
+                error_code = status.HTTP_201_CREATED 
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data))
+        else:
+            return HttpResponseRedirect(reverse('login')) 
+
+
+class WhereWeWorkView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                work = CoreSites.objects.get(id=1)
+                if work:
+                    context = {'work' : work,'www':True} 
+            except CoreSites.DoesNotExist:
+                context = {'work' : '','www':True}  
+            return render(request, 'system_admin/pages/where_we_work.html', context)
+        else:
+            return HttpResponseRedirect(reverse('login'))   
+        
+    def post(self, request):
+        if request.user.is_authenticated: 
+            try:
+                work = CoreSites.objects.get(id=1)
+                if work:
+                    work.where_we_work = request.POST.get('where_we_work')
+                    work.save()
+                    msg = 'Where We Work updated successfully.'
+                    error_code = status.HTTP_200_OK  
+            except CoreSites.DoesNotExist:
+                CoreSites.objects.create(
+                where_we_work = request.POST.get('where_we_work'),
+                author = self.request.user,
+                )
+                msg = 'Where We Work created successfully.'
+                error_code = status.HTTP_201_CREATED 
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data))
+        else:
+            return HttpResponseRedirect(reverse('login')) 
+
+class CoreSitesView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                c_sites = CoreSites.objects.get(id=1)
+                if c_sites:
+                    context = {'c_sites' : c_sites,'coreSite':True} 
+            except CoreSites.DoesNotExist:
+                context = {'c_sites' : '','coreSite':True}  
+            return render(request, 'system_admin/pages/core_sites.html', context)
+        else:
+            return HttpResponseRedirect(reverse('login'))   
+        
+    def post(self, request):
+        if request.user.is_authenticated: 
+            try:
+                c_sites = CoreSites.objects.get(id=1)
+                if c_sites:
+                    c_sites.core_sites = request.POST.get('core_sites')
+                    c_sites.save()
+                    msg = 'Core Sites updated successfully.'
+                    error_code = status.HTTP_200_OK  
+            except CoreSites.DoesNotExist:
+                CoreSites.objects.create(
+                core_sites = request.POST.get('core_sites'),
+                author = self.request.user,
+                )
+                msg = 'Core Sites created successfully.'
+                error_code = status.HTTP_201_CREATED 
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data))
+        else:
+            return HttpResponseRedirect(reverse('login')) 
+
+class ISFSitesView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                isfs = CoreSites.objects.get(id=1)
+                if isfs:
+                    context = {'isfs' : isfs,'isfSite':True} 
+            except CoreSites.DoesNotExist:
+                context = {'isfs' : '','isfSite':True}  
+            return render(request, 'system_admin/pages/isf_sites.html', context)
+        else:
+            return HttpResponseRedirect(reverse('login'))   
+        
+    def post(self, request):
+        if request.user.is_authenticated: 
+            try:
+                isfs = CoreSites.objects.get(id=1)
+                if isfs:
+                    isfs.isf_sites = request.POST.get('isf_sites')
+                    isfs.save()
+                    msg = 'ISF Sites updated successfully.'
+                    error_code = status.HTTP_200_OK  
+            except CoreSites.DoesNotExist:
+                CoreSites.objects.create(
+                isf_sites = request.POST.get('isf_sites'),
+                author = self.request.user,
+                )
+                msg = 'ISF Sites created successfully.'
+                error_code = status.HTTP_201_CREATED 
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data))
+        else:
+            return HttpResponseRedirect(reverse('login')) 
+
+class RemedialSitesView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            try:
+                remedial = CoreSites.objects.get(id=1)
+                if remedial:
+                    context = {'remedial' : remedial,'remSite':True} 
+            except CoreSites.DoesNotExist:
+                context = {'remedial' : '','remSite':True}  
+            return render(request, 'system_admin/pages/remedial_sites.html', context)
+        else:
+            return HttpResponseRedirect(reverse('login'))   
+        
+    def post(self, request):
+        if request.user.is_authenticated: 
+            try:
+                remedial = CoreSites.objects.get(id=1)
+                if remedial:
+                    remedial.remidial_work_sites = request.POST.get('remidial_work_sites')
+                    remedial.save()
+                    msg = 'Remedial Sites updated successfully.'
+                    error_code = status.HTTP_200_OK  
+            except CoreSites.DoesNotExist:
+                CoreSites.objects.create(
+                remidial_work_sites = request.POST.get('remidial_work_sites'),
+                author = self.request.user,
+                )
+                msg = 'Remedial Sites created successfully.'
+                error_code = status.HTTP_201_CREATED 
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data))
+        else:
+            return HttpResponseRedirect(reverse('login')) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
         
         
         

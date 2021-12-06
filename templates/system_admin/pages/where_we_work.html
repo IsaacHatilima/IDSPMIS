@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block contents %}
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox animated bounceInRight" id='ibox2'>
+                <div class="ibox-title" style="padding-bottom: 20px">
+                    <h5>Where We Work</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="sk-spinner sk-spinner-wave">
+                        <div class="sk-rect1"></div>
+                        <div class="sk-rect2"></div>
+                        <div class="sk-rect3"></div>
+                        <div class="sk-rect4"></div>
+                        <div class="sk-rect5"></div>
+                    </div>
+                    <form method="POST" id="form">
+                        {% csrf_token %}
+                        <textarea class="summernote" id="where_we_work" name="where_we_work">
+                            {% if work %}
+                                {{ work.where_we_work | safe}}
+                            {% endif %}
+                        </textarea>
+                        <div class="col-md-12">
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <div class="col-sm-10">
+                                    <a class="btn btn-white" href="{% url 'where_works' %}"><i class="fa fa-times"></i> Cancel</a>
+                                    <button class="btn btn-primary" type="submit" name="posts" id="posts"><i class="fa fa-save"></i> Save</button>
+                                </div>
+                            </div>
+                        </div> 
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock%}
+
+
+{% block pageinclude %}
+    <script>
+        $("#posts").on('click', function (e){
+            e.preventDefault();
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "preventDuplicates": false,
+                "positionClass": "toast-top-right",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            } 
+            $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+            let where_we_work = $("#where_we_work").val();
+            var query = { where_we_work: where_we_work};
+            $.ajax({
+                url: "{% url 'where_works' %}",
+                data: query,
+                type: "POST",
+                dataType: 'json',
+                headers: {
+                    content_type: 'application/json',
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                success: function (data) {
+                    $('#ibox2').children('.ibox-content').toggleClass('sk-loading');
+                    if (data) {
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 201){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                window.location.href = "{% url 'where_works' %}";
+                            }, 1500);
+                        }
+                        else if(status === 200){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                window.location.href = "{% url 'where_works' %}";
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                }
+            });
+        })
+
+    </script>
+{% endblock%}

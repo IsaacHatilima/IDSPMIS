@@ -168,12 +168,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
-# STATIC_ROOT = os.path.join('/home/idsprrud/static')
 STATIC_ROOT = os.path.join('/home/idsprrud/ims.idspzambia.org/static')
 # STATIC_ROOT = 'staticfiles'
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
+
 MEDIA_URL = '/media/'
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_ROOT = os.path.join(BASE_DIR, '/home/idsprrud/ims.idspzambia.org/media')
