@@ -71,6 +71,18 @@ class CreateUser(View):
         else:
             return HttpResponseRedirect(reverse('authentication:login'))
 
+class DeleteUser(View):
+    def post(self, request):
+        if request.user.is_authenticated:
+            person = User.objects.get(user_uid=request.POST.get('person_id'))
+            person.delete()
+            msg = 'User deleted successfully.'
+            error_code = status.HTTP_200_OK        
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data)) 
+        else:
+            return HttpResponseRedirect(reverse('login'))
+
 class UsersView(View):
     def get(self, request, format=None):
         if request.user.is_authenticated:  
@@ -104,6 +116,18 @@ class DocumentRepo(View):
             return HttpResponse(json.dumps(response_data)) 
         else:
             return HttpResponseRedirect(reverse('login')) 
+        
+class DeleteDoc(View):
+    def post(self, request):
+        if request.user.is_authenticated:
+            record = DocumentsRepo.objects.get(document_uid=request.POST.get('record_id'))
+            record.delete()
+            msg = 'File deleted successfully.'
+            error_code = status.HTTP_200_OK        
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data)) 
+        else:
+            return HttpResponseRedirect(reverse('login'))   
         
 class RootFoldersView(View):
     def get(self, request, format=None):
@@ -160,25 +184,28 @@ class UpdateDeleteRoot(View):
             return HttpResponseRedirect(reverse('login'))  
         
 class SubFoldersView(View):
+    def get_roots(self):
+        try:
+            root_folders = RootFolders.objects.all()
+            root_folders_list = root_folders
+        except RootFolders.DoesNotExist:
+            root_folders_list = ""
+        return root_folders_list
+            
     def get(self, request, format=None):
         if request.user.is_authenticated:
-            try:
-                root_folders = RootFolders.objects.all()
-                if root_folders:
-                    root_folders_list = root_folders
-            except RootFolders.DoesNotExist:
-                root_folders_list = ""
                 
             try:
                 folders = SubFolders.objects.all()
                 if folders:
-                    context={'folders' : folders, 'root_folders_list':root_folders_list, 'sub':True} 
+                    context={'folders' : folders, 'root_folders_list':self.get_roots(), 'sub':True} 
             except SubFolders.DoesNotExist:
                 folders = ""
-            context = {'folders' : folders,'root_folders_list':root_folders_list, 'sub':True} 
+            context = {'folders' : folders,'root_folders_list':self.get_roots(), 'sub':True} 
             return render(request, 'system_admin/pages/document_repo/sub_folders/sub_folders.html', context)
         else:
             return HttpResponseRedirect(reverse('login'))
+        
     def post(self, request):
         if request.user.is_authenticated:
             try:
@@ -199,11 +226,20 @@ class SubFoldersView(View):
             return HttpResponseRedirect(reverse('login'))         
  
 class SubFoldersEdit(View):
+    def get_roots(self,sub_folder_uid):
+        sub_folde = SubFolders.objects.get(sub_folder_uid=sub_folder_uid)
+        try:
+            documents = DocumentsRepo.objects.get(doc_sub_folder=sub_folde.id)
+            docus = documents
+        except DocumentsRepo.DoesNotExist:
+            docus = ""
+        return docus
+    
     def get(self, request, sub_folder_uid):
         if request.user.is_authenticated:
             root_folders = RootFolders.objects.all()
             sub_folder = SubFolders.objects.filter(sub_folder_uid=sub_folder_uid)
-            context = {'sub_folder' : sub_folder,'root_folders':root_folders,'sub':True} 
+            context = {'sub_folder' : sub_folder,'root_folders':root_folders,'docus':self. get_roots(sub_folder_uid), 'sub':True} 
             return render(request, 'system_admin/pages/document_repo/sub_folders/edit_folder.html', context)
         else:
             return HttpResponseRedirect(reverse('login'))
@@ -221,7 +257,19 @@ class UpdateSub(View):
             response_data = {'status' : error_code, 'msg' : msg}
             return HttpResponse(json.dumps(response_data)) 
         else:
-            return HttpResponseRedirect(reverse('login'))          
+            return HttpResponseRedirect(reverse('login'))  
+        
+class DeleteSubFolder(View):
+    def post(self, request):
+        if request.user.is_authenticated:
+            record = SubFolders.objects.get(sub_folder_uid=request.POST.get('record_id'))
+            record.delete()
+            msg = 'Folder deleted successfully.'
+            error_code = status.HTTP_200_OK        
+            response_data = {'status' : error_code, 'msg' : msg}
+            return HttpResponse(json.dumps(response_data)) 
+        else:
+            return HttpResponseRedirect(reverse('login'))        
         
 class DocumentsView(View):
     def get(self, request, sub_folder_uid):

@@ -92,15 +92,21 @@
                         var role = data.role
                         if(status === 200)
                         {
+                            $("#heading").html('Authenticated!');
+                            $("#msg").html('Redirecting, Please Wait...');
+                            $("#notify").removeClass("alert-info alert-warning").addClass("alert-success");
                             if(role === "System Admin")
                             {
-                                $("#heading").html('Authenticated!');
-                                $("#msg").html('Redirecting, Please Wait...');
-                                $("#notify").removeClass("alert-info alert-warning").addClass("alert-success");
                                 setTimeout(function() {
                                     window.location.href = "{% url 'dashboard' %}";
                                 }, 2500);
-                            }                    
+                            }  
+                            if(role === "PIU Member")
+                            {
+                                setTimeout(function() {
+                                    window.location.href = "{% url 'piu_dashboard' %}";
+                                }, 2500);
+                            }                   
                         }
                         else if(status === 401)
                         {

@@ -17,6 +17,7 @@
                                     <th>Email</th>
                                     <th>Role</th>
                                     <th>Created</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -26,6 +27,7 @@
                                         <td>{{ person.email | safe }}</td>
                                         <td>{{ person.user_role | safe }}</td>
                                         <td>{{ person.date_created }}</td>
+                                        <td><button type="button" class="btn btn-xs btn-danger" id="{{ person.user_uid | safe }}" onClick="delete_click(this.id)">Delete</button></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -35,6 +37,7 @@
                                     <th>Email</th>
                                     <th>Role</th>
                                     <th>Created</th>
+                                    <th>Action</th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -56,12 +59,72 @@
                 responsive: true,
                 dom: '<"html5buttons"B>lTfgitp',
                 buttons: [
-                    {extend: 'csv', title: 'IDSP MIS Root Document Repository Folders'},
-                    {extend: 'excel', title: 'IDSP MIS Root Document Repository Folders'},
+                    {extend: 'csv', title: 'IDSP MIS Users'},
+                    {extend: 'excel', title: 'IDSP MIS Users'},
                 ]
             });
 
         });
+
+        function delete_click(clicked_id)
+        { 
+            document.getElementById(clicked_id).disabled = true;
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to undo this action!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                closeOnConfirm: false
+            }, function () {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "progressBar": true,
+                    "preventDuplicates": false,
+                    "positionClass": "toast-top-right",
+                    "onclick": null,
+                    "showDuration": "400",
+                    "hideDuration": "1000",
+                    "timeOut": "7000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }     
+                $('#ibox2').children('.ibox-content').toggleClass('sk-loading');    
+                let person_id = clicked_id;
+                var payload = {person_id : person_id};
+                $.ajax({
+                    url: "{% url 'user_delete' %}",
+                    data: payload,
+                    method: "POST",
+                    dataType: 'json',
+                    headers: {
+                        content_type: 'application/json',
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    success: function (data) {
+                    if (data) {
+                        console.log(data)
+                        var status = data.status
+                        var message = data.msg
+                        if(status === 200){
+                            toastr.success(message,'Success!')
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        }
+                        else{
+                            toastr.warning(message,'Warning!')
+                        }
+                    }
+                    }
+                });
+            });
+        }
 
     </script>
 {% endblock%}

@@ -7,4 +7,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('authentication.urls')),
     path('system-admin/', include('system_admin.urls')),
+    path('piu-members/', include('piu.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

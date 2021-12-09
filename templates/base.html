@@ -51,7 +51,12 @@
 
     <body class="fixed-sidebar no-skin-config ">
         <div id="wrapper">
-            {% include "system_admin/components/sidenav.html"%}
+            {% if user.user_role == "System Admin"  %}
+                {% include "system_admin/components/sidenav.html"%}
+            {% elif user.user_role == "PIU Member" %}
+                {% include "piu_members/components/sidenav.html"%}
+            {% endif %}
+            
             <div id="page-wrapper" class="gray-bg">
                 {% include "system_admin/components/topnav.html"%}
                 <div class="wrapper wrapper-content">

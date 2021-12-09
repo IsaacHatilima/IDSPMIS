@@ -21,7 +21,7 @@
                     IN+
                 </div>
             </li>
-            {% if user.email == "edward.chibwe@idspzambia.org"  %}
+            <!-- {% if user.email == "edward.chibwe@idspzambia.org"  %}
                 <li class="{% if user_list or create_user %}active{% endif %}">
                     <a href="#"><i class="fa fa-users"></i> <span class="nav-label">User Management </span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
@@ -29,7 +29,14 @@
                         <li class="{% if users %}active{% endif %}"><a href="{% url 'users' %}">User List</a></li>
                     </ul>
                 </li>
-            {% endif %}
+            {% endif %} -->
+            <li class="{% if user_list or create_user %}active{% endif %}">
+                <a href="#"><i class="fa fa-users"></i> <span class="nav-label">User Management </span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li class="{% if create_user %}active{% endif %}"><a href="{% url 'create_user' %}">Create User</a></li>
+                    <li class="{% if users %}active{% endif %}"><a href="{% url 'users' %}">User List</a></li>
+                </ul>
+            </li>
             <li class="document_repo">
                 <a href="#"><i class="fa fa-file"></i> <span class="nav-label">Documets</span></a>
             </li>
